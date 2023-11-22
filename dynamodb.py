@@ -66,6 +66,19 @@ def select_register(table, id):
     else:
         item = table.get_item(Key={'id': id})['Item']
         print(item)
+        
+# create function to delete a register in a dynamodb table
+def delete_register(table, id):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table)
+    table.delete_item(Key={'id': id})
+    print("Registro eliminado")
+    
+# reconocer celebridad en imagen
+def recognize_celebrity(image):
+    rekognition = boto3.client('rekognition')
+    response = rekognition.recognize_celebrities(Image={'Bytes': imagen})
+    print(response['CelebrityFaces'][0]['Name'])
 
 
 option = 1
@@ -75,6 +88,8 @@ while option != 0:
     print("2. Crear una tabla")
     print("3. Insert a document")
     print("4. Consultar registros")
+    print("5. Eliminar un registro")
+    print("6. Reconocer celebridad via imagen")
     option = int(input())
     if option == 1:
         list_tables("miguel")
@@ -98,6 +113,18 @@ while option != 0:
         print("Ingrese id (Si lo deja vacio se traeran todos los registros)")
         id = str(input())
         select_register(tableName, id)
+    elif option == 5:
+        print("Ingrese nombre de la tabla")
+        print("Estas son sus tablas:")
+        list_tables("miguel")
+        tableName = str(input())
+        print("Ingrese id")
+        id = str(input())
+        delete_register(tableName, id)
+    elif option == 6:
+     with open("IMAGEN.png", "rb") as f:
+            imagen = f.read()
+            recognize_celebrity(imagen)
     elif option == 0:
         print("Hasta luego")
     else:
