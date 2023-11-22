@@ -1,13 +1,19 @@
 import boto3
-
-print(boto3)
+import uuid
 
 #create a function to list tables of dynamodb
-def list_tables():
+def list_tables2():
     dynamodb = boto3.resource('dynamodb')
     for table in dynamodb.tables.all():
         print(table.name)
-        
+
+
+def list_tables(string):
+    dynamodb = boto3.resource('dynamodb')
+    for table in dynamodb.tables.all():
+        if string in table.name:
+            print(table.name)
+
 
 #create a function to show tables of prueba table
 def show_table():
@@ -37,19 +43,61 @@ def create_table(name):
     )
     print("Tabla creada exitosamente")
 
+# create a function complete to insert a register in a dynamodb table
+def insert_register(table, name, lastName):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table)
+    table.put_item(
+        Item = {
+            'id': str(uuid.uuid4()),
+            'name': name,
+            'lastName': lastName
+        }
+    )
+    print("Registro insertado!")
+    
+
+def select_register(table, id):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table)
+    if id == "":
+        for item in table.scan()['Items']:
+            print(item)
+    else:
+        item = table.get_item(Key={'id': id})['Item']
+        print(item)
+
 
 option = 1
 while option != 0:
     print("Ingrese la opcion que desea")
     print("1. Listar tablas de la cuenta")
     print("2. Crear una tabla")
+    print("3. Insert a document")
+    print("4. Consultar registros")
     option = int(input())
     if option == 1:
-        list_tables()
+        list_tables("miguel")
     elif option == 2:
         print("Ingrese nombre para la tabla")
         name = str(input())
         create_table(name)
+    elif option == 3:
+        print("Ingrese nombre de la tabla")
+        tableName = str(input())
+        print("Ingrese nombre")
+        name = str(input())
+        print("Ingrese apellido")
+        lastName = str(input())
+        insert_register(tableName, name, lastName)
+    elif option == 4:
+        print("Ingrese nombre de la tabla")
+        print("Estas son sus tablas:")
+        list_tables("miguel")
+        tableName = str(input())
+        print("Ingrese id (Si lo deja vacio se traeran todos los registros)")
+        id = str(input())
+        select_register(tableName, id)
     elif option == 0:
         print("Hasta luego")
     else:
